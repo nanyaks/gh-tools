@@ -1,20 +1,18 @@
 #! /usr/bin/env python
 
-# What this file does is to get a pull of all my git repos from my local ~/git dir
-
 import os, sys
 from subprocess import call
 
-gitpath = sys.argv[1] if len(sys.argv) > 1 else '/home/nanyaks/git';
+gitpath = sys.argv[1] if len(sys.argv) > 1 else os.environ['HOME'] + '/git'
+
+print gitpath
+exit()
 
 dirlist = []
 
 def walkdir(rootpth, lvl = 1):
-	""" Walk the directory tree; similar to os.walk but uses a 'lvl' variable for 
-	recursion level. 
+	""" Walk the directory tree; similar to os.walk but uses a 'lvl' variable for recursion level."""
 	
-	Borrowed code from --> http://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below?rq=1"""
-
 	rootpth = rootpth.rstrip(os.path.sep)
 	assert os.path.isdir(rootpth)
 	num_sep = rootpth.count(os.path.sep)
@@ -35,7 +33,7 @@ def verifyrepo(pth):
 	try:
 		assert os.path.isdir(pth)
 	except AssertionError:
-		print "It seems the directory specified is not a DIRECTORY\n\nExiting!"
+		print "It seems the value specified is not a DIRECTORY\n\nExiting!"
 	if not '.git' in os.listdir(pth):
 		return False
 	else:
@@ -56,20 +54,17 @@ def pullremote(gitrepo, myname):
 if __name__ == '__main__':
 	for rootdir, dirs, files in walkdir(gitpath):
 		dirlist.append(rootdir)
+
 	root = dirlist[0]		# A reference to the root directory
 	repos = dirlist[1:]		# ..list reference to the subdirectories
-	
-	# ...the verifyrepo()'ing phase xD
 	for repo in repos:
 		try:
 			assert verifyrepo( repo )
 		except AssertionError:
 			print "The Directory %s, is not a git repo" % repo
 			continue
-		
-		# Alright, finish up!
+
 		reponame = repo.split('/')[-1]
 		_name = reponame.title()
-		# Call function.
 		pullremote(repo, _name)
 
